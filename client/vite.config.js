@@ -1,12 +1,10 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
-import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
@@ -14,8 +12,8 @@ export default defineConfig({
         name: 'Restaurante La Pradera',
         short_name: 'La Pradera',
         description: 'Barbadillo de Herreros - Sierra de la Demanda',
-        theme_color: '#2F4228', // Verde Logo
-        background_color: '#F3F2ED', // Color Piedra
+        theme_color: '#2F4228',
+        background_color: '#F3F2ED',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -29,7 +27,7 @@ export default defineConfig({
             src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable' // Importante para Android modernos
+            purpose: 'any maskable'
           }
         ]
       }
