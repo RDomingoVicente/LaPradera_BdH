@@ -1,0 +1,143 @@
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AppLayout from './layouts/AppLayout';
+import MenuCard from './components/MenuCard';
+import DailyMenuBoard from './components/DailyMenuBoard';
+import AdminDishForm from './components/AdminDishForm';
+import DailyMenuBuilder from './components/DailyMenuBuilder';
+import { supabase } from './supabaseClient';
+
+// -- Page Components (Inline for simplicity given the deliverables) --
+
+const HomePage = () => (
+  <div className="text-center py-10">
+    <h1 className="text-4xl font-serif text-primary mb-4">Bienvenidos a<br/>La Pradera</h1>
+    <p className="text-gray-600 mb-8 px-6">Disfruta de la mejor gastronomía en un entorno natural único.</p>
+    <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Restaurante" className="rounded-xl shadow-lg mb-8" />
+    <div className="bg-secondary/10 p-6 rounded-lg mx-4">
+        <h3 className="text-secondary font-bold text-xl mb-2">Horario</h3>
+        <p className="text-sm">Martes a Domingo: 13:00 - 16:00</p>
+        <p className="text-sm">Viernes y Sábados: 20:30 - 23:30</p>
+    </div>
+  </div>
+);
+
+const MenuPage = () => {
+  const [dishes, setDishes] = useState([]);
+  const [filter, setFilter] = useState('all');
+
+  useEffect(() => {
+    const fetchDishes = async () => {
+      let query = supabase.from('dishes').select('*').eq('available', true);
+      if (filter !== 'all') query = query.eq('category', filter);
+      const { data } = await query;
+      if (data) setDishes(data);
+    };
+    fetchDishes();
+  }, [filter]);
+
+  const categories = ['all', 'entrante', 'principal', 'postre', 'bebida'];
+
+  return (
+    <div className="pb-20">
+      <h2 className="text-2xl font-bold text-primary mb-4 px-2">Nuestra Carta</h2>
+      
+      <div className="flex gap-2 overflow-x-auto pb-4 px-2 mb-2 no-scrollbar">
+        {categories.map(cat => (
+          <button 
+            key={cat}
+            onClick={() => setFilter(cat)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap capitalize transition-colors ${filter === cat ? 'bg-primary text-white shadow-md' : 'bg-white text-gray-600 border border-gray-200'}`}
+          >
+            {cat === 'all' ? 'Todos' : cat}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 px-2">
+        {dishes.map(dish => <MenuCard key={dish.id} dish={dish} />)}
+      </div>
+    </div>
+  );
+};
+
+const DailyMenuPage = () => {
+    const [menu, setMenu] = useState(null);
+    const [items, setItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDailyMenu();
+    }, []);
+
+    const fetchDailyMenu = async () => {
+        const today = new Date().toISOString().split('T')[0];
+        // Fetch active menu for today
+        const { data: menuData } = await supabase
+            .from('daily_menus')
+            .select('*')
+            .eq('date', today)
+            .eq('active', true)
+            .maybeSingle();
+
+        if (menuData) {
+            setMenu(menuData);
+            // Fetch items for this menu
+            const { data: itemsData } = await supabase
+                .from('daily_menu_items')
+                .select('dish_id, dishes(*)')
+                .eq('menu_id', menuData.id);
+            
+            if (itemsData) {
+                setItems(itemsData.map(i => i.dishes));
+            }
+        }
+        setLoading(false);
+    };
+
+    if (loading) return <div className="text-center py-10">Cargando menú...</div>;
+
+    return (
+        <div className="min-h-[80vh] flex flex-col items-center justify-center p-4 bg-wood-pattern">
+             <DailyMenuBuilderLink />
+             <DailyMenuBoard menu={menu} items={items} />
+        </div>
+    );
+};
+
+// Start admin link helper
+const DailyMenuBuilderLink = () => { 
+    // This logic allows us to see the builder if no menu is present or just for demo 
+    // Ideally this button only shows if admin, but keeping it simple
+    return null;
+}
+
+const AdminPage = () => {
+    // In a real app, protect this route with auth check
+    return (
+        <div className="pb-20">
+            <h1 className="text-3xl font-serif text-primary mb-6">Administración</h1>
+            <AdminDishForm />
+            <div className="h-8"></div>
+            <DailyMenuBuilder />
+        </div>
+    );
+};
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AppLayout />}>
+          <Route index element={<HomePage />} />
+          <Route path="menu" element={<MenuPage />} />
+          <Route path="daily-menu" element={<DailyMenuPage />} />
+          <Route path="admin" element={<AdminPage />} />
+          <Route path="events" element={<div className="p-4 text-center">Próximamente...</div>} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

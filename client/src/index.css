@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta de colores de La Pradera */
+  --color-background: #F3F2ED;
+  --color-primary: #2F4228;
+  --color-secondary: #D9A038;
+  --color-surface: #FFFFFF;
+  --color-text: #1A1A1A;
+
+  /* Tipografías */
+  --font-serif: Merriweather, serif;
+  --font-sans: Inter, sans-serif;
+}
+
+/* Estilos base */
+@layer base {
+  body {
+    /* Aquí aplicamos las variables directamente o usamos las clases */
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
+}
