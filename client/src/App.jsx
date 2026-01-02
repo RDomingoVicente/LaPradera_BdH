@@ -11,12 +11,19 @@ import MenuCard from './components/MenuCard';
 import DailyMenuBoard from './components/DailyMenuBoard';
 import AdminDishForm from './components/AdminDishForm';
 import DailyMenuBuilder from './components/DailyMenuBuilder';
+import NotificationButton from './components/NotificationButton';
+import AdminPushForm from './components/AdminPushForm';
 
 // --- COMPONENTES DE PÁGINA (Integrados con el nuevo diseño) ---
 
 // 1. PORTADA (Diseño visual nuevo con foto Terraza)
 const HomePage = () => (
   <div className="pb-24">
+    {/* Notification Button Floating/Absolute */}
+    <div className="fixed top-4 right-4 z-50 bg-white/90 backdrop-blur rounded-full shadow-lg">
+      <NotificationButton />
+    </div>
+
     {/* HERO SECTION */}
     <div className="relative h-72 md:h-96 w-full overflow-hidden rounded-b-3xl shadow-lg">
       <img src={heroImage} alt="Terraza La Pradera" className="w-full h-full object-cover" />
@@ -179,6 +186,15 @@ const DailyMenuPage = () => {
 const AdminPage = () => (
     <div className="pb-24 pt-6 px-4 max-w-xl mx-auto">
         <h1 className="text-3xl font-serif text-primary mb-6 border-b pb-2">Gestión La Pradera</h1>
+        
+        {/* Push Notifications Section */}
+        <div className="bg-surface p-4 rounded-xl shadow mb-8 border border-yellow-500/30">
+            <h3 className="font-bold text-lg mb-4 text-yellow-800 flex items-center gap-2">
+                <Bell size={20} /> Enviar Avisos Push
+            </h3>
+            <AdminPushForm />
+        </div>
+
         <div className="bg-surface p-4 rounded-xl shadow mb-8">
             <h3 className="font-bold text-lg mb-4">Añadir Nuevo Plato</h3>
             <AdminDishForm />
